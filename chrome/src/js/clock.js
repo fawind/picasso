@@ -6,11 +6,11 @@ export default class Clock {
   }
 
   run() {
-    this.updateClock();
+    this._updateClock();
     setTimeout(this.run.bind(this), this.refreshInterval);
   }
 
-  updateClock() {
+  _updateClock() {
     this.clockElement.html(Clock._getTime());
   }
 
@@ -25,5 +25,4 @@ export default class Clock {
       Clock._formatTime(date.getMinutes()),
     ].join(':');
   }
-
 }

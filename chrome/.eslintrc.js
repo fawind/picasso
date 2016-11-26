@@ -5,6 +5,9 @@ module.exports = {
     FileReader: true,
     localStorage: true,
   },
+  ecmaFeatures: {
+    await: true,
+  },
   rules: {
     'no-underscore-dangle': 0,
   },
