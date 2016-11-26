@@ -1,0 +1,16 @@
+{
+  "name": "Picasso New Tab Page",
+  "description": "A minimalistic new tab page.",
+  "version": "0.1",
+  "incognito": "split",
+  "permissions": [
+    "http://picasso-tab.appspot.com/*",
+    "https://*.wikiart.org/*",
+    "storage"
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "manifest_version": 2
+}
