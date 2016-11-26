@@ -8,7 +8,7 @@ import './main.css';
 
 const bgElement = $('.bg');
 const clockElement = $('.clock');
-const infoElement = $('#info');
+const widgetElement = $('.widget');
 const titleElement = $('#title');
 const artistElement = $('#artist');
 const skipElement = $('#skip');
@@ -33,10 +33,10 @@ class NewTab {
   }
 
   static _toggleInfoBox() {
-    if (infoElement.css('visibility') === 'hidden') {
-      infoElement.css('visibility', 'visible');
+    if (widgetElement.css('visibility') === 'hidden') {
+      widgetElement.css('visibility', 'visible');
     } else {
-      infoElement.css('visibility', 'hidden');
+      widgetElement.css('visibility', 'hidden');
     }
   }
 
@@ -50,7 +50,7 @@ class NewTab {
   static _setBackground(image) {
     bgElement.css('background-image', `url(${image.dataUri})`);
     titleElement.text(image.title).attr('href', image.image);
-    artistElement.text(image.artistname);
+    artistElement.text(image.artistName);
   }
 }
 

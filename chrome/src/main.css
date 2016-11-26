@@ -4,6 +4,7 @@ html, body, .bg {
   padding: 0;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
   color: white;
+  text-shadow: 0 0 35px #000;
 }
 
 .bg {
@@ -21,18 +22,25 @@ html, body, .bg {
   font-size: 5rem;
   font-weight: 700;
   cursor: default;
-  text-shadow: 0 0 35px #000;
+}
+
+.widget {
+  position: fixed;
+  padding: 1em;
 }
 
 #info {
-  visibility: hidden;
-  position: absolute;
   bottom: 0;
   left: 0;
-  padding: 1em;
-  text-shadow: 0 0 35px #000;
 }
 
-#info a, #info a:link, #info a:visited, #info a:active {
+#actions {
+  bottom: 0;
+  right: 0;
+}
+
+a, a:link, a:visited, a:active {
+  text-decoration: underline;
+  cursor: pointer;
   color: white;
 }
