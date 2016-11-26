@@ -2,8 +2,10 @@ import $ from 'jquery';
 
 import ImageStore from './imageStore';
 
+
 const API_ENPOINT = 'http://picasso-tab.appspot.com/api/v1/image/batch/';
 const MIN_IMAGECACHE = 1;
+
 
 export default class ImageProvider {
 
@@ -13,11 +15,16 @@ export default class ImageProvider {
   }
 
   static async getCurrentImage() {
-    if (!ImageStore.hasCurrentImage() || ImageStore.currentImageIsExpired()) {
-      await ImageProvider._updateCurrentImage();
+    try {
+      if (!ImageStore.hasCurrentImage() || ImageStore.currentImageIsExpired()) {
+        await ImageProvider._updateCurrentImage();
+      }
+      const image = ImageStore.getCurrentImage();
+      return image;
+    } catch (error) {
+      ImageProvider._handleError(error);
+      throw error;
     }
-    const image = ImageStore.getCurrentImage();
-    return image;
   }
 
   static async _updateCurrentImage() {
@@ -52,11 +59,16 @@ export default class ImageProvider {
       const xhr = new XMLHttpRequest();
       xhr.responseType = 'blob';
       xhr.onload = () => {
+        if (xhr.status !== 200) {
+          reject(`Error while downloading image: ${xhr.status}: ${xhr.statusText}`);
+          return;
+        }
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
         reader.onerror = () => reject(reader.error);
         reader.readAsDataURL(xhr.response);
       };
+      xhr.onerror = () => reject(`Error while downloading image: ${xhr.status}: ${xhr.statusText}`);
       xhr.open('GET', imageUrl);
       xhr.send();
     });
@@ -71,5 +83,14 @@ export default class ImageProvider {
   static async _fetchImageBatch(index) {
     const batchEndpoint = API_ENPOINT + index;
     return await $.get(batchEndpoint);
+  }
+
+  static _handleError(error) {
+    const ISSUES_URL = 'https://github.com/fawind/picasso/issues';
+    console.error(
+      'Error while loading background image. Please check that you are connected with the internet and try again.',
+      `If the error persists, please open a ticket: ${ISSUES_URL}`,
+    );
+    console.error(error);
   }
 }

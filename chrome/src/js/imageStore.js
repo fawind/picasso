@@ -5,6 +5,7 @@ const KEYS = {
   LAST_UPDATED: 'last_updated',
 };
 
+
 class Store {
 
   static set(key, value) {
@@ -28,6 +29,7 @@ class Store {
     }
   }
 }
+
 
 export default class ImageStore {
 
