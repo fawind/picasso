@@ -22,7 +22,7 @@ module.exports = Object.assign(
       }),
       new CopyWebpackPlugin([
         { from: './src/manifest.json', to: 'manifest.json' },
-        { context: './src/res', from: '*', to: 'res/' },
+        { context: './src/res', from: '*', to: '' },
       ]),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': '"production"',
