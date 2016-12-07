@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.html",
   "scripts": {
-    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline -d",
+    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --port 9090 --inline -d",
     "lint": "./node_modules/eslint/bin/eslint.js src",
     "build": "./node_modules/webpack/bin/webpack.js --config ./webpack.build.config.js -p",
     "clean": "rm -rf ./dist",

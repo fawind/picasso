@@ -10,7 +10,7 @@ const bgElement = $('.bg');
 const clockElement = $('.clock');
 const widgetElement = $('.widget');
 const titleElement = $('#title');
-const artistElement = $('#artist');
+const descriptionElement = $('#description');
 const skipElement = $('#skip');
 
 
@@ -50,7 +50,14 @@ class NewTab {
   static _setBackground(image) {
     bgElement.css('background-image', `url(${image.dataUri})`);
     titleElement.text(image.title).attr('href', image.image);
-    artistElement.text(image.artistName);
+    descriptionElement.text(NewTab._getDescription(image));
+  }
+
+  static _getDescription(image) {
+    if (!image.completitionYear || image.completitionYear === '-1') {
+      return image.artistName;
+    }
+    return `${image.artistName}, ${image.completitionYear}`;
   }
 }
 

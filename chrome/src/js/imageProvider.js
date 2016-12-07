@@ -19,8 +19,7 @@ export default class ImageProvider {
       if (!ImageStore.hasCurrentImage() || ImageStore.currentImageIsExpired()) {
         await ImageProvider._updateCurrentImage();
       }
-      const image = ImageStore.getCurrentImage();
-      return image;
+      return ImageStore.getCurrentImage();
     } catch (error) {
       ImageProvider._handleError(error);
       throw error;
