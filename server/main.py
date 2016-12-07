@@ -37,7 +37,7 @@ class ImageBatch(webapp2.RequestHandler):
 
 
 application = webapp2.WSGIApplication([
-    ('/api/ping', Ping),
-    ('/', Home),
-    ('/api/v1/image/batch/(\d*)', ImageBatch)
-], debug=True)
+    ('/ping', Ping),
+    ('/api/v1/image/batch/(\d*)', ImageBatch),
+    ('/', Home)
+], debug=False)
