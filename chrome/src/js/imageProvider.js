@@ -86,10 +86,12 @@ export default class ImageProvider {
 
   static _handleError(error) {
     const ISSUES_URL = 'https://github.com/fawind/picasso/issues';
+    // eslint-disable-next-line no-console
     console.error(
       'Error while loading background image. Please check that you are connected with the internet and try again.',
       `If the error persists, please open a ticket: ${ISSUES_URL}`,
     );
+    // eslint-disable-next-line no-console
     console.error(error);
   }
 }

@@ -4,9 +4,12 @@
   "main": "index.html",
   "scripts": {
     "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --port 9090 --inline -d",
+    "test": "./node_modules/mocha/bin/mocha --recursive --compilers js:babel-register --require ./test/setup.js",
     "lint": "./node_modules/eslint/bin/eslint.js src",
-    "build": "./node_modules/webpack/bin/webpack.js --config ./webpack.build.config.js -p",
+    "testlint": "npm run test; npm run lint",
+    "testwatch": "./node_modules/mocha/bin/mocha --watch --recursive --compilers js:babel-register --require ./test/setup.js",
     "clean": "rm -rf ./dist",
+    "build": "./node_modules/webpack/bin/webpack.js --config ./webpack.build.config.js -p",
     "release": "npm run clean; npm run build; zip -j ./dist/picasso.zip ./dist/*"
   },
   "repository": {
@@ -31,7 +34,10 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.7.1",
+    "expect": "^1.20.2",
     "html-webpack-plugin": "^2.24.1",
+    "jsdom": "^9.8.3",
+    "mocha": "^3.2.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.3",
     "webpack-dev-server": "^1.16.2"
