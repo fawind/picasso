@@ -5,24 +5,24 @@ import Store from '../../src/js/store';
 
 describe('Store', () => {
   describe('#set()', () => {
-    let storageSpy;
+    let setItemSpy;
 
     beforeEach(() => {
-      storageSpy = expect.spyOn(localStorage, 'setItem');
+      setItemSpy = expect.spyOn(localStorage, 'setItem');
     });
 
     it('should set the serialized value in the localStorage', () => {
       Store.set('key', 'value');
-      expect(storageSpy).toHaveBeenCalledWith('key', '"value"');
-      storageSpy.reset();
+      expect(setItemSpy).toHaveBeenCalledWith('key', '"value"');
+      setItemSpy.reset();
 
       Store.set('key2', [1, 2]);
-      expect(storageSpy).toHaveBeenCalledWith('key2', '[1,2]');
-      storageSpy.reset();
+      expect(setItemSpy).toHaveBeenCalledWith('key2', '[1,2]');
+      setItemSpy.reset();
 
       Store.set('key', { key: 'val' });
-      expect(storageSpy).toHaveBeenCalledWith('key', '{"key":"val"}');
-      storageSpy.reset();
+      expect(setItemSpy).toHaveBeenCalledWith('key', '{"key":"val"}');
+      setItemSpy.reset();
     });
   });
 
@@ -42,6 +42,19 @@ describe('Store', () => {
 
       storageSpy.andReturn('[1,{"key":"val"}]');
       expect(Store.get('key')).toEqual([1, { key: 'val' }]);
+    });
+  });
+
+  describe('#canSet()', () => {
+    it('should return true if no error is thrown during set', () => {
+      const removeItemSpy = expect.spyOn(localStorage, 'removeItem');
+      expect(Store.canSet(12)).toBe(true);
+      expect(removeItemSpy).toHaveBeenCalled();
+    });
+
+    it('should return false if an error is thrown during set', () => {
+      expect.spyOn(Store, 'set').andThrow(new Error());
+      expect(Store.canSet(12)).toBe(false);
     });
   });
 

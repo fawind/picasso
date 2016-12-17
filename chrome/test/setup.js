@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import { jsdom } from 'jsdom';
 
 class LocalStorage {
@@ -13,12 +14,16 @@ class LocalStorage {
     this.store[key] = value;
   }
 
+  removeItem(key) {
+    delete this.store[key];
+  }
+
   clear() {
     this.store = {};
   }
 }
 
 global.document = jsdom('<!doctype html><html><body></body></html>');
-global.window = document.defaultView;
+global.window = global.document.defaultView;
 global.navigator = global.window.navigator;
-global.localStorage = window.localStorage = new LocalStorage();
+global.localStorage = global.window.localStorage = new LocalStorage();

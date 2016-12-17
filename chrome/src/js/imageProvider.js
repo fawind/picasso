@@ -4,51 +4,53 @@ import ImageStore from './imageStore';
 
 
 const API_ENPOINT = 'http://picasso-tab.appspot.com/api/v1/image/batch/';
-const MIN_IMAGECACHE = 1;
-
 
 export default class ImageProvider {
 
   static async skipCurrentImage() {
-    ImageStore.expireCurrentImage();
-    return await ImageProvider.getCurrentImage();
+    ImageStore.skipCurrentImage();
+    return ImageProvider.getCurrentImage();
   }
 
   static async getCurrentImage() {
-    try {
-      if (!ImageStore.hasCurrentImage() || ImageStore.currentImageIsExpired()) {
-        await ImageProvider._updateCurrentImage();
-      }
-      return ImageStore.getCurrentImage();
-    } catch (error) {
-      ImageProvider._handleError(error);
-      throw error;
+    await ImageProvider._expireImageAndExtendQueue();
+    let currentImage = ImageStore.getCurrentImage();
+    if (!ImageStore.isDownloaded(currentImage)) {
+      currentImage = await ImageProvider._downloadImage(currentImage);
+      ImageStore.updateCachedImage(0, currentImage);
+    }
+    ImageProvider.downloadNextImages();
+    return currentImage;
+  }
+
+  static async downloadNextImages() {
+    const imagesToDownload = ImageStore.getUncachedImages();
+    for (let i = 0; i < imagesToDownload.length; i += 1) {
+      const imageBucket = imagesToDownload[i];
+      const downloadedImage = await ImageProvider._downloadImage(imageBucket.image);
+      ImageStore.updateCachedImage(imageBucket.index, downloadedImage);
     }
   }
 
-  static async _updateCurrentImage() {
-    if (ImageStore.getImagesCount() <= MIN_IMAGECACHE) {
-      await ImageProvider._updateImageCache(ImageStore.getIndex());
+  static async _expireImageAndExtendQueue() {
+    if (ImageStore.currentImageIsExpired()) {
+      ImageStore.skipCurrentImage();
+      ImageStore.refreshLastUpdated();
     }
-    const images = ImageStore.getImages();
-    let currentImage = images.shift();
-    currentImage = await ImageProvider._downloadAndUpdateCurrentImage(currentImage);
-
-    ImageStore.setImages(images);
-    ImageStore.setCurrentImage(currentImage);
-    ImageStore.refreshLastUpdated();
+    if (ImageStore.shouldExtendQueue()) {
+      await ImageProvider._updateImageCache(ImageStore.getBatchIndex());
+    }
   }
 
-  static async _downloadAndUpdateCurrentImage(image, retry = false) {
+  static async _downloadImage(image, retry = false) {
     const dataUri = await ImageProvider._convertToDataUri(image.image);
     const annotatedImage = Object.assign({}, image, { dataUri });
-    try {
-      ImageStore.setCurrentImage(annotatedImage);
-    } catch (error) {
-      // Data uri to large for store.
-      if (retry) { throw error; }
+    if (!ImageStore.canUpdateCachedImage(annotatedImage)) {
+      if (retry) {
+        throw new Error('Cannot set image');
+      }
       annotatedImage.image += '!Large.jpg';
-      return ImageProvider._downloadAndUpdateCurrentImage(annotatedImage, true);
+      return ImageProvider._downloadImage(annotatedImage, true);
     }
     return annotatedImage;
   }
@@ -76,7 +78,7 @@ export default class ImageProvider {
   static async _updateImageCache(index) {
     const images = await ImageProvider._fetchImageBatch(index);
     ImageStore.addImages(images);
-    ImageStore.setIndex(index + images.length);
+    ImageStore.setBatchIndex(index + images.length);
   }
 
   static async _fetchImageBatch(index) {

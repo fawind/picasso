@@ -2,7 +2,7 @@ import Store from './store';
 
 
 const KEYS = {
-  QUEUE_LENGTH: 'queue-length',
+  QUEUE_LENGTH: 'queue_size',
 };
 
 export default class BucketQueue {
@@ -54,7 +54,7 @@ export default class BucketQueue {
 
   static _getQueue() {
     const queue = [];
-    for (let i = 0; i < BucketQueue.getSize(); i++) {
+    for (let i = 0; i < BucketQueue.getSize(); i += 1) {
       queue.push(BucketQueue._getBucket(i));
     }
     return queue;
@@ -67,8 +67,8 @@ export default class BucketQueue {
   }
 
   static _clearBuckets() {
-    for (let i = 0; i < BucketQueue.getSize(); i++) {
-      BucketQueue._setBucket(i, null);
+    for (let i = 0; i < BucketQueue.getSize(); i += 1) {
+      Store.remove(i);
     }
     BucketQueue._setSize(0);
   }

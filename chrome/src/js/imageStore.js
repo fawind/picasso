@@ -1,33 +1,55 @@
 import Store from './store';
+import BucketQueue from './bucketQueue';
 
 
 const KEYS = {
-  IMAGES: 'images',
-  CURRENT_IMAGE: 'current_image',
   INDEX: 'index',
   LAST_UPDATED: 'last_updated',
+  DATA_URI_FIELD: 'dataUri',
+  MIN_QUEUE_SIZE: 4,
+  IMAGES_TO_DOWNLOAD: 4,
 };
 
 export default class ImageStore {
 
-  static getIndex() {
-    return Store.get(KEYS.INDEX) || 0;
-  }
-
-  static setIndex(index) {
-    Store.set(KEYS.INDEX, index);
-  }
-
   static getCurrentImage() {
-    return Store.get(KEYS.CURRENT_IMAGE) || null;
+    return BucketQueue.peak();
   }
 
-  static setCurrentImage(image) {
-    Store.set(KEYS.CURRENT_IMAGE, image);
+  static skipCurrentImage() {
+    BucketQueue.remove();
   }
 
-  static hasCurrentImage() {
-    return ImageStore.getCurrentImage() !== null;
+  static addImages(images) {
+    BucketQueue.addAll(images);
+  }
+
+  static getImagesCount() {
+    return BucketQueue.getSize();
+  }
+
+  static isDownloaded(image) {
+    return image.hasOwnProperty(KEYS.DATA_URI_FIELD);
+  }
+
+  static getUncachedImages(limit = KEYS.IMAGES_TO_DOWNLOAD) {
+    const images = [];
+    const toIndex = Math.min(BucketQueue.getSize(), limit);
+    for (let i = 0; i < toIndex; i += 1) {
+      const image = BucketQueue.get(i);
+      if (!ImageStore.isDownloaded(image)) {
+        images.push({ image, index: i });
+      }
+    }
+    return images;
+  }
+
+  static updateCachedImage(index, image) {
+    BucketQueue.update(index, image);
+  }
+
+  static canUpdateCachedImage(image) {
+    return Store.canSet(image);
   }
 
   static currentImageIsExpired() {
@@ -42,34 +64,23 @@ export default class ImageStore {
     Store.set(KEYS.LAST_UPDATED, ImageStore._getDay());
   }
 
-  static expireCurrentImage() {
-    Store.set(KEYS.LAST_UPDATED, -1);
+  static shouldExtendQueue() {
+    return ImageStore.getImagesCount() < KEYS.MIN_QUEUE_SIZE;
   }
 
-  static getImagesCount() {
-    return ImageStore.getImages().length;
+  static getBatchIndex() {
+    return Store.get(KEYS.INDEX) || 0;
   }
 
-  static getImages() {
-    return Store.get(KEYS.IMAGES) || [];
-  }
-
-  static setImages(images) {
-    return Store.set(KEYS.IMAGES, images);
-  }
-
-  static addImages(images) {
-    const currentImages = ImageStore.getImages();
-    Store.set(KEYS.IMAGES, currentImages.concat(images));
+  static setBatchIndex(index) {
+    Store.set(KEYS.INDEX, index);
   }
 
   static _getDay() {
     return new Date().getDate();
   }
 
-  static _clear() {
-    Store.set(KEYS.IMAGES, '');
-    Store.set(KEYS.CURRENTIMAGE, '');
-    Store.set(KEYS.LAST_UPDATED, '');
+  static _getKeys() {
+    return KEYS;
   }
 }

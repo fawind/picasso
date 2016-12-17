@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import Store from '../../src/js/store.js';
+import Store from '../../src/js/store';
 import BucketQueue from '../../src/js/bucketQueue';
 
 const KEYS = BucketQueue._getKeys();
@@ -55,7 +55,7 @@ describe('BucketQueue', () => {
       expect(BucketQueue.getSize()).toBe(newQueue.length);
       expect(BucketQueue._getQueue()).toEqual(newQueue);
 
-      for (let i = startIndex; i <= endIndex; i++) {
+      for (let i = startIndex; i <= endIndex; i += 1) {
         expect(Store.get(i)).toNotExist();
       }
     });

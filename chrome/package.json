@@ -10,7 +10,7 @@
     "testwatch": "./node_modules/mocha/bin/mocha --watch --recursive --compilers js:babel-register --require ./test/setup.js",
     "clean": "rm -rf ./dist",
     "build": "./node_modules/webpack/bin/webpack.js --config ./webpack.build.config.js -p",
-    "release": "npm run clean; npm run build; zip -j ./dist/picasso.zip ./dist/*"
+    "release": "npm run testlint; npm run clean; npm run build; zip -j ./dist/picasso.zip ./dist/*"
   },
   "repository": {
     "type": "git",
