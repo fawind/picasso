@@ -12,6 +12,10 @@ class LocalStorage {
   setItem(key, value) {
     this.store[key] = value;
   }
+
+  clear() {
+    this.store = {};
+  }
 }
 
 global.document = jsdom('<!doctype html><html><body></body></html>');
