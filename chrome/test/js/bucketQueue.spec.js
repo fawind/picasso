@@ -1,27 +1,32 @@
+import constitute from 'constitute';
 import expect from 'expect';
 
 import Store from '../../src/js/store';
 import BucketQueue from '../../src/js/bucketQueue';
+import { MockStore } from '../testUtil';
 
-const KEYS = BucketQueue._getKeys();
 
 describe('BucketQueue', () => {
+  let bucketQueue;
+
   beforeEach(() => {
-    localStorage.clear();
+    const container = new constitute.Container();
+    container.bindClass(Store, MockStore);
+    bucketQueue = container.constitute(BucketQueue);
   });
 
   describe('#_getQueue()', () => {
     it('should return the queue', () => {
       const expectedQueue = ['key1', 'key2', 'key3'];
-      expectedQueue.forEach((elem, index) => Store.set(index, elem));
-      Store.set(KEYS.QUEUE_LENGTH, expectedQueue.length);
+      expectedQueue.forEach((elem, index) => bucketQueue.store.set(index, elem));
+      bucketQueue.store.set(bucketQueue._keys.QUEUE_LENGTH, expectedQueue.length);
 
-      const queue = BucketQueue._getQueue();
+      const queue = bucketQueue._getQueue();
       expect(queue).toEqual(expectedQueue);
     });
 
     it('should return an empty queue when no size is set', () => {
-      const queue = BucketQueue._getQueue();
+      const queue = bucketQueue._getQueue();
       expect(queue).toEqual([]);
     });
   });
@@ -33,11 +38,11 @@ describe('BucketQueue', () => {
         { key: 2, val: '2' },
         { key: 3, val: '3' },
       ];
-      BucketQueue._setQueue(queue);
+      bucketQueue._setQueue(queue);
 
-      expect(queue.length).toBe(BucketQueue.getSize());
+      expect(queue.length).toBe(bucketQueue.getSize());
       queue.forEach((elem, index) => {
-        expect(elem).toEqual(Store.get(index));
+        expect(elem).toEqual(bucketQueue.store.get(index));
       });
     });
 
@@ -47,16 +52,16 @@ describe('BucketQueue', () => {
       const startIndex = newQueue.length + 1;
       const endIndex = oldQueue.length - 1;
 
-      BucketQueue._setQueue(oldQueue);
-      expect(BucketQueue.getSize()).toBe(oldQueue.length);
-      expect(BucketQueue._getQueue()).toEqual(oldQueue);
+      bucketQueue._setQueue(oldQueue);
+      expect(bucketQueue.getSize()).toBe(oldQueue.length);
+      expect(bucketQueue._getQueue()).toEqual(oldQueue);
 
-      BucketQueue._setQueue(newQueue);
-      expect(BucketQueue.getSize()).toBe(newQueue.length);
-      expect(BucketQueue._getQueue()).toEqual(newQueue);
+      bucketQueue._setQueue(newQueue);
+      expect(bucketQueue.getSize()).toBe(newQueue.length);
+      expect(bucketQueue._getQueue()).toEqual(newQueue);
 
       for (let i = startIndex; i <= endIndex; i += 1) {
-        expect(Store.get(i)).toNotExist();
+        expect(bucketQueue.store.get(i)).toNotExist();
       }
     });
   });
@@ -64,47 +69,47 @@ describe('BucketQueue', () => {
   describe('#peak()', () => {
     it('should return the first element', () => {
       const queue = [1, 2, 3, 4];
-      BucketQueue._setQueue(queue);
+      bucketQueue._setQueue(queue);
 
-      expect(BucketQueue.peak()).toEqual(queue[0]);
-      expect(BucketQueue._getQueue()).toEqual(queue);
+      expect(bucketQueue.peak()).toEqual(queue[0]);
+      expect(bucketQueue._getQueue()).toEqual(queue);
     });
 
     it('should work with an empty queue', () => {
-      expect(BucketQueue.peak()).toNotExist();
+      expect(bucketQueue.peak()).toNotExist();
     });
   });
 
   describe('#remove()', () => {
     it('should remove and return the next entry', () => {
       const queue = [1, 2, 3, 4];
-      BucketQueue._setQueue(queue);
+      bucketQueue._setQueue(queue);
 
       let size = queue.length;
       queue.forEach((elem) => {
         size -= 1;
-        expect(BucketQueue.remove()).toEqual(elem);
-        expect(BucketQueue.getSize()).toEqual(size);
+        expect(bucketQueue.remove()).toEqual(elem);
+        expect(bucketQueue.getSize()).toEqual(size);
       });
-      expect(BucketQueue.getSize()).toBe(0);
+      expect(bucketQueue.getSize()).toBe(0);
     });
 
     it('should work with an empty queue', () => {
-      expect(BucketQueue.getSize()).toBe(0);
-      expect(BucketQueue.remove()).toNotExist();
+      expect(bucketQueue.getSize()).toBe(0);
+      expect(bucketQueue.remove()).toNotExist();
     });
   });
 
   describe('#add()', () => {
     it('should add an element', () => {
       const elements = [1, 2, 3, 4, 5, 6];
-      expect(BucketQueue.getSize()).toBe(0);
-      expect(BucketQueue._getQueue()).toEqual([]);
+      expect(bucketQueue.getSize()).toBe(0);
+      expect(bucketQueue._getQueue()).toEqual([]);
 
       elements.forEach((elem, index) => {
-        BucketQueue.add(elem);
-        expect(BucketQueue.getSize()).toBe(index + 1);
-        expect(BucketQueue._getQueue())
+        bucketQueue.add(elem);
+        expect(bucketQueue.getSize()).toBe(index + 1);
+        expect(bucketQueue._getQueue())
           .toEqual(elements.slice(0, index + 1));
       });
     });
@@ -114,32 +119,32 @@ describe('BucketQueue', () => {
     it('should add all elements', () => {
       const elementsA = [1, 2, 3];
       const elementsB = ['a', 'b', 'c'];
-      expect(BucketQueue.getSize()).toBe(0);
-      expect(BucketQueue._getQueue()).toEqual([]);
+      expect(bucketQueue.getSize()).toBe(0);
+      expect(bucketQueue._getQueue()).toEqual([]);
 
-      BucketQueue.addAll(elementsA);
-      expect(BucketQueue.getSize()).toBe(elementsA.length);
-      expect(BucketQueue._getQueue()).toEqual(elementsA);
+      bucketQueue.addAll(elementsA);
+      expect(bucketQueue.getSize()).toBe(elementsA.length);
+      expect(bucketQueue._getQueue()).toEqual(elementsA);
 
-      BucketQueue.addAll(elementsB);
-      expect(BucketQueue.getSize())
+      bucketQueue.addAll(elementsB);
+      expect(bucketQueue.getSize())
         .toBe(elementsA.length + elementsB.length);
-      expect(BucketQueue._getQueue()).toEqual(elementsA.concat(elementsB));
+      expect(bucketQueue._getQueue()).toEqual(elementsA.concat(elementsB));
     });
   });
 
   describe('#get()', () => {
     it('should return the element at the given index', () => {
       const queue = [1, 2, 3, 4, 5];
-      BucketQueue._setQueue(queue);
+      bucketQueue._setQueue(queue);
       queue.forEach((elem, index) => {
-        expect(BucketQueue.get(index)).toEqual(elem);
+        expect(bucketQueue.get(index)).toEqual(elem);
       });
     });
 
     it('should return undefined when no element exist at this index', () => {
-      expect(BucketQueue.get(1)).toNotExist();
-      expect(BucketQueue.get(13)).toNotExist();
+      expect(bucketQueue.get(1)).toNotExist();
+      expect(bucketQueue.get(13)).toNotExist();
     });
   });
 
@@ -149,35 +154,35 @@ describe('BucketQueue', () => {
       const expectedA = [1, 2, 'a', 4, 5];
       const expectedB = [1, 2, 'a', 4, 'b'];
       const expectedC = ['c', 2, 'a', 4, 'b'];
-      BucketQueue._setQueue(queue);
+      bucketQueue._setQueue(queue);
 
-      BucketQueue.update(2, 'a');
-      expect(BucketQueue._getQueue()).toEqual(expectedA);
-      BucketQueue.update(4, 'b');
-      expect(BucketQueue._getQueue()).toEqual(expectedB);
-      BucketQueue.update(0, 'c');
-      expect(BucketQueue._getQueue()).toEqual(expectedC);
+      bucketQueue.update(2, 'a');
+      expect(bucketQueue._getQueue()).toEqual(expectedA);
+      bucketQueue.update(4, 'b');
+      expect(bucketQueue._getQueue()).toEqual(expectedB);
+      bucketQueue.update(0, 'c');
+      expect(bucketQueue._getQueue()).toEqual(expectedC);
     });
 
     it('should throw a RangeError when updating an invalid index', () => {
       const queue = [1, 2, 3];
-      BucketQueue._setQueue(queue);
+      bucketQueue._setQueue(queue);
 
-      expect(() => BucketQueue.update(10)).toThrow(RangeError);
-      expect(() => BucketQueue.update(-1)).toThrow(RangeError);
+      expect(() => bucketQueue.update(10)).toThrow(RangeError);
+      expect(() => bucketQueue.update(-1)).toThrow(RangeError);
     });
   });
 
   describe('#_clearBuckets()', () => {
     it('should clear all buckets and reset the size', () => {
       const queue = [1, 2, 3, 4];
-      BucketQueue._setQueue(queue);
-      expect(BucketQueue._getQueue()).toEqual(queue);
-      expect(BucketQueue.getSize()).toBe(queue.length);
+      bucketQueue._setQueue(queue);
+      expect(bucketQueue._getQueue()).toEqual(queue);
+      expect(bucketQueue.getSize()).toBe(queue.length);
 
-      BucketQueue._clearBuckets();
-      expect(BucketQueue._getQueue()).toEqual([]);
-      expect(BucketQueue.getSize()).toBe(0);
+      bucketQueue._clearBuckets();
+      expect(bucketQueue._getQueue()).toEqual([]);
+      expect(bucketQueue.getSize()).toBe(0);
     });
   });
 });

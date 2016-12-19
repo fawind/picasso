@@ -1,8 +1,12 @@
+import { ClockElement } from './domElements';
+
 export default class Clock {
 
-  constructor(clockElement, refreshInterval = 60000) {
+  static constitute() { return [ClockElement]; }
+
+  constructor(clockElement) {
     this.clockElement = clockElement;
-    this.refreshInterval = refreshInterval;
+    this.refreshInterval = 60000;
   }
 
   run() {
@@ -11,18 +15,18 @@ export default class Clock {
   }
 
   _updateClock() {
-    this.clockElement.html(Clock._getTime());
+    this.clockElement.textContent = this._getTime();
   }
 
-  static _formatTime(time) {
+  _formatTime(time) {
     return time < 10 ? `0${time}` : time;
   }
 
-  static _getTime() {
+  _getTime() {
     const date = new Date();
     return [
-      Clock._formatTime(date.getHours()),
-      Clock._formatTime(date.getMinutes()),
+      this._formatTime(date.getHours()),
+      this._formatTime(date.getMinutes()),
     ].join(':');
   }
 }

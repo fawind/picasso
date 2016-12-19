@@ -1,61 +1,64 @@
-import $ from 'jquery';
-
 import ImageStore from './imageStore';
 
 
-const API_ENPOINT = 'http://picasso-tab.appspot.com/api/v1/image/batch/';
-
 export default class ImageProvider {
 
-  static async skipCurrentImage() {
-    ImageStore.skipCurrentImage();
-    return ImageProvider.getCurrentImage();
+  static constitute() { return [ImageStore]; }
+
+  constructor(imageStore) {
+    this.imageStore = imageStore;
+    this._API_ENPOINT = 'http://picasso-tab.appspot.com/api/v1/image/batch/';
   }
 
-  static async getCurrentImage() {
-    await ImageProvider._expireImageAndExtendQueue();
-    let currentImage = ImageStore.getCurrentImage();
-    if (!ImageStore.isDownloaded(currentImage)) {
-      currentImage = await ImageProvider._downloadImage(currentImage);
-      ImageStore.updateCachedImage(0, currentImage);
+  async skipCurrentImage() {
+    this.imageStore.skipCurrentImage();
+    return this.getCurrentImage();
+  }
+
+  async getCurrentImage() {
+    await this._expireImageAndExtendQueue();
+    let currentImage = this.imageStore.getCurrentImage();
+    if (!this.imageStore.isDownloaded(currentImage)) {
+      currentImage = await this._downloadImage(currentImage);
+      this.imageStore.updateCachedImage(0, currentImage);
     }
-    ImageProvider.downloadNextImages();
+    this.downloadNextImages();
     return currentImage;
   }
 
-  static async downloadNextImages() {
-    const imagesToDownload = ImageStore.getUncachedImages();
+  async downloadNextImages() {
+    const imagesToDownload = this.imageStore.getUncachedImages();
     for (let i = 0; i < imagesToDownload.length; i += 1) {
       const imageBucket = imagesToDownload[i];
-      const downloadedImage = await ImageProvider._downloadImage(imageBucket.image);
-      ImageStore.updateCachedImage(imageBucket.index, downloadedImage);
+      const downloadedImage = await this._downloadImage(imageBucket.image);
+      this.imageStore.updateCachedImage(imageBucket.index, downloadedImage);
     }
   }
 
-  static async _expireImageAndExtendQueue() {
-    if (ImageStore.currentImageIsExpired()) {
-      ImageStore.skipCurrentImage();
-      ImageStore.refreshLastUpdated();
+  async _expireImageAndExtendQueue() {
+    if (this.imageStore.currentImageIsExpired()) {
+      this.imageStore.skipCurrentImage();
+      this.imageStore.refreshLastUpdated();
     }
-    if (ImageStore.shouldExtendQueue()) {
-      await ImageProvider._updateImageCache(ImageStore.getBatchIndex());
+    if (this.imageStore.shouldExtendQueue()) {
+      await this._updateImageCache(this.imageStore.getBatchIndex());
     }
   }
 
-  static async _downloadImage(image, retry = false) {
-    const dataUri = await ImageProvider._convertToDataUri(image.image);
+  async _downloadImage(image, retry = false) {
+    const dataUri = await this._convertToDataUri(image.image);
     const annotatedImage = Object.assign({}, image, { dataUri });
-    if (!ImageStore.canUpdateCachedImage(annotatedImage)) {
+    if (!this.imageStore.canUpdateCachedImage(annotatedImage)) {
       if (retry) {
         throw new Error('Cannot set image');
       }
       annotatedImage.image += '!Large.jpg';
-      return ImageProvider._downloadImage(annotatedImage, true);
+      return this._downloadImage(annotatedImage, true);
     }
     return annotatedImage;
   }
 
-  static async _convertToDataUri(imageUrl) {
+  async _convertToDataUri(imageUrl) {
     return await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.responseType = 'blob';
@@ -75,18 +78,19 @@ export default class ImageProvider {
     });
   }
 
-  static async _updateImageCache(index) {
-    const images = await ImageProvider._fetchImageBatch(index);
-    ImageStore.addImages(images);
-    ImageStore.setBatchIndex(index + images.length);
+  async _updateImageCache(index) {
+    const images = await this._fetchImageBatch(index);
+    this.imageStore.addImages(images);
+    this.imageStore.setBatchIndex(index + images.length);
   }
 
-  static async _fetchImageBatch(index) {
-    const batchEndpoint = API_ENPOINT + index;
-    return await $.get(batchEndpoint);
+  async _fetchImageBatch(index) {
+    const batchEndpoint = this._API_ENPOINT + index;
+    return await fetch(batchEndpoint)
+      .then(response => response.json());
   }
 
-  static _handleError(error) {
+  _handleError(error) {
     const ISSUES_URL = 'https://github.com/fawind/picasso/issues';
     // eslint-disable-next-line no-console
     console.error(

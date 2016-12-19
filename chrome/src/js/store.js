@@ -1,45 +1,44 @@
-const KEYS = {
-  TEMP_BUCKET: 'temp_bucket',
-};
-
 export default class Store {
 
-  static set(key, value) {
-    localStorage.setItem(key, Store._serialize(value));
+  constructor(store = localStorage) {
+    this.store = store;
+    this._keys = {
+      TEMP_BUCKET: 'temp_bucket',
+    };
   }
 
-  static get(key) {
-    return Store._deserialize(localStorage.getItem(key));
+  set(key, value) {
+    this.store.setItem(key, this._serialize(value));
   }
 
-  static canSet(value) {
+  get(key) {
+    return this._deserialize(this.store.getItem(key));
+  }
+
+  canSet(value) {
     try {
-      Store.set(KEYS.TEMP_BUCKET, value);
+      this.set(this._keys.TEMP_BUCKET, value);
     } catch (error) {
       return false;
     }
-    localStorage.removeItem(KEYS.TEMP_BUCKET);
+    this.store.removeItem(this._keys.TEMP_BUCKET);
     return true;
   }
 
-  static remove(key) {
-    localStorage.removeItem(key);
+  remove(key) {
+    this.store.removeItem(key);
   }
 
-  static _serialize(value) {
+  _serialize(value) {
     return JSON.stringify(value);
   }
 
-  static _deserialize(value) {
+  _deserialize(value) {
     if (typeof value !== 'string') return undefined;
     try {
       return JSON.parse(value);
     } catch (_) {
       return value || undefined;
     }
-  }
-
-  static _getKeys() {
-    return KEYS;
   }
 }

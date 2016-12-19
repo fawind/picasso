@@ -1,59 +1,81 @@
-import $ from 'jquery';
+import constitute from 'constitute';
+import {
+  BgElement,
+  WidgetElement,
+  TitleElement,
+  DescriptionElement,
+  SkipElement,
+} from './js/domElements';
 
 import Clock from './js/clock';
 import ImageProvider from './js/imageProvider';
 
 import './main.css';
 
-
-const bgElement = $('.bg');
-const clockElement = $('.clock');
-const widgetElement = $('.widget');
-const titleElement = $('#title');
-const descriptionElement = $('#description');
-const skipElement = $('#skip');
-
-
 class NewTab {
 
-  static init() {
-    NewTab._initBackground();
-    NewTab._registerListener();
-    new Clock(clockElement).run();
+  static constitute() {
+    return [
+      Clock,
+      ImageProvider,
+      BgElement,
+      TitleElement,
+      WidgetElement,
+      DescriptionElement,
+      SkipElement,
+    ];
   }
 
-  static _initBackground() {
-    ImageProvider.getCurrentImage()
-      .then(image => NewTab._setBackground(image));
+  constructor(clock, imageProvider, bgElement, titleElement,
+              widgetElement, descriptionElement, skipElement) {
+    this.imageProvider = imageProvider;
+    this.clock = clock;
+    this.bgElement = bgElement;
+    this.widgetElement = widgetElement;
+    this.titleElement = titleElement;
+    this.descriptionElement = descriptionElement;
+    this.skipElement = skipElement;
   }
 
-  static _registerListener() {
-    bgElement.click(NewTab._toggleInfoBox);
-    skipElement.click(NewTab._skipImage);
+  init() {
+    this._initBackground();
+    this._registerListener();
+    this.clock.run();
   }
 
-  static _toggleInfoBox() {
-    if (widgetElement.css('visibility') === 'hidden') {
-      widgetElement.css('visibility', 'visible');
+  _initBackground() {
+    this.imageProvider.getCurrentImage()
+      .then(image => this._setBackground(image));
+  }
+
+  _registerListener() {
+    this.bgElement.onclick = this._toggleInfoBox.bind(this);
+    this.skipElement.onclick = this._skipImage.bind(this);
+  }
+
+  _toggleInfoBox() {
+    if (this.widgetElement.style.visibility === 'hidden') {
+      this.widgetElement.style.visibility = 'visible';
     } else {
-      widgetElement.css('visibility', 'hidden');
+      this.widgetElement.style.visibility = 'hidden';
     }
   }
 
-  static _skipImage() {
-    ImageProvider.skipCurrentImage()
+  _skipImage() {
+    this.imageProvider.skipCurrentImage()
       .then((nextImage) => {
-        NewTab._setBackground(nextImage);
+        this._setBackground(nextImage);
       });
   }
 
-  static _setBackground(image) {
-    bgElement.css('background-image', `url(${image.dataUri})`);
-    titleElement.text(image.title).attr('href', image.image);
-    descriptionElement.text(NewTab._getDescription(image));
+  _setBackground(image) {
+    this.bgElement.style['background-image'] = `url(${image.dataUri})`;
+    this.titleElement.textContent = image.title;
+    this.titleElement.setAttribute('href', image.image);
+    this.descriptionElement.textContent = this._getDescription(image);
   }
 
-  static _getDescription(image) {
+  _getDescription(image) {
     if (!image.completitionYear || image.completitionYear === '-1') {
       return image.artistName;
     }
@@ -62,5 +84,5 @@ class NewTab {
 }
 
 (function initNewTab() {
-  NewTab.init();
+  constitute(NewTab).init();
 }());

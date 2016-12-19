@@ -1,87 +1,83 @@
 import Store from './store';
 
-
-const KEYS = {
-  QUEUE_LENGTH: 'queue_size',
-};
-
 export default class BucketQueue {
 
-  static peak() {
-    const queue = BucketQueue._getQueue();
+  static constitute() { return [Store]; }
+
+  constructor(store) {
+    this.store = store;
+    this._keys = {
+      QUEUE_LENGTH: 'queue_size',
+    };
+  }
+
+  peak() {
+    const queue = this._getQueue();
     if (queue.length === 0) {
       return undefined;
     }
     return queue[0];
   }
 
-  static remove() {
-    const queue = BucketQueue._getQueue();
+  remove() {
+    const queue = this._getQueue();
     const entry = queue.shift();
-    BucketQueue._setQueue(queue);
+    this._setQueue(queue);
     return entry;
   }
 
-  static add(entry) {
-    const queue = BucketQueue._getQueue();
+  add(entry) {
+    const queue = this._getQueue();
     queue.push(entry);
-    BucketQueue._setQueue(queue);
+    this._setQueue(queue);
   }
 
-  static addAll(entries) {
-    const queue = BucketQueue._getQueue();
-    BucketQueue._setQueue(queue.concat(entries));
+  addAll(entries) {
+    const queue = this._getQueue();
+    this._setQueue(queue.concat(entries));
   }
 
-  static get(index) {
-    return Store.get(index);
+  get(index) {
+    return this.store.get(index);
   }
 
-  static update(index, elem) {
-    if (index >= BucketQueue.getSize() || index < 0) {
+  update(index, elem) {
+    if (index >= this.getSize() || index < 0) {
       throw new RangeError('Index is out of range.');
     }
-    Store.set(index, elem);
+    this.store.set(index, elem);
   }
 
-  static getSize() {
-    return Store.get(KEYS.QUEUE_LENGTH) || 0;
+  getSize() {
+    return this.store.get(this._keys.QUEUE_LENGTH) || 0;
   }
 
-  static _setSize(size) {
-    Store.set(KEYS.QUEUE_LENGTH, size);
+  _setSize(size) {
+    this.store.set(this._keys.QUEUE_LENGTH, size);
   }
 
-  static _getQueue() {
+  _getQueue() {
     const queue = [];
-    for (let i = 0; i < BucketQueue.getSize(); i += 1) {
-      queue.push(BucketQueue._getBucket(i));
+    for (let i = 0; i < this.getSize(); i += 1) {
+      queue.push(this.get(i));
     }
     return queue;
   }
 
-  static _setQueue(queue) {
-    BucketQueue._clearBuckets();
-    queue.forEach((entry, i) => BucketQueue._setBucket(i, entry));
-    BucketQueue._setSize(queue.length);
+  _setQueue(queue) {
+    this._clearBuckets();
+    queue.forEach((entry, i) => this._setBucket(i, entry));
+    this._setSize(queue.length);
   }
 
-  static _clearBuckets() {
-    for (let i = 0; i < BucketQueue.getSize(); i += 1) {
-      Store.remove(i);
+  _clearBuckets() {
+    for (let i = 0; i < this.getSize(); i += 1) {
+      this.store.remove(i);
     }
-    BucketQueue._setSize(0);
+    this._setSize(0);
   }
 
-  static _getBucket(index) {
-    return Store.get(index) || {};
-  }
-
-  static _setBucket(index, entry) {
-    Store.set(index, entry);
-  }
-
-  static _getKeys() {
-    return KEYS;
+  _setBucket(index, entry) {
+    this.store.set(index, entry);
   }
 }

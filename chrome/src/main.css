@@ -24,19 +24,18 @@ html, body, .bg {
   cursor: default;
 }
 
-.widget {
+#info {
   position: fixed;
+  bottom: 0;
+  left: 0;
   padding: 1em;
 }
 
-#info {
-  bottom: 0;
-  left: 0;
-}
-
 #actions {
+  position: fixed;
   bottom: 0;
   right: 0;
+  padding: 1em;
 }
 
 a, a:link, a:visited, a:active {
