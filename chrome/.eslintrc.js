@@ -4,6 +4,7 @@ module.exports = {
     XMLHttpRequest: true,
     FileReader: true,
     localStorage: true,
+    navigator: true,
     fetch: true,
     document: true,
   },

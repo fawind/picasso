@@ -36,12 +36,14 @@ export default class ImageProvider {
   }
 
   async _expireImageAndExtendQueue() {
-    if (this.imageStore.currentImageIsExpired()) {
-      this.imageStore.skipCurrentImage();
-      this.imageStore.refreshLastUpdated();
-    }
-    if (this.imageStore.shouldExtendQueue()) {
-      await this._updateImageCache(this.imageStore.getBatchIndex());
+    if (this._isOnline()) {
+      if (this.imageStore.currentImageIsExpired()) {
+        this.imageStore.skipCurrentImage();
+        this.imageStore.refreshLastUpdated();
+      }
+      if (this.imageStore.shouldExtendQueue()) {
+        await this._updateImageCache(this.imageStore.getBatchIndex());
+      }
     }
   }
 
@@ -86,8 +88,12 @@ export default class ImageProvider {
 
   async _fetchImageBatch(index) {
     const batchEndpoint = this._API_ENPOINT + index;
-    return await fetch(batchEndpoint)
+    return fetch(batchEndpoint)
       .then(response => response.json());
+  }
+
+  _isOnline() {
+    return navigator.onLine;
   }
 
   _handleError(error) {
