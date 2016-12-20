@@ -43,3 +43,29 @@ a, a:link, a:visited, a:active {
   cursor: pointer;
   color: white;
 }
+
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+}
+
+/* Spinner from: https://github.com/tawian/text-spinners */
+.loading {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.3em;
+  margin-top: -0.3em;
+  line-height: 1.5em;
+  vertical-align: text-bottom;
+}
+
+.loading::after {
+  display: inline-table;
+  white-space: pre;
+  text-align: left;
+  content: "⠋\A⠙\A⠹\A⠸\A⠼\A⠴\A⠦\A⠧\A⠇\A⠏";
+  animation: spin10 1s steps(10) infinite;
+}
+
+@keyframes spin10 { to { transform: translateY(-15.0em); } }
