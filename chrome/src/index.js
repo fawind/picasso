@@ -28,10 +28,16 @@ class NewTab {
     ];
   }
 
-  constructor(clock, imageProvider, bgElement, titleElement,
-              widgetElement, descriptionElement, skipElement, loadingElement) {
-    this.imageProvider = imageProvider;
+  constructor(clock,
+              imageProvider,
+              bgElement,
+              titleElement,
+              widgetElement,
+              descriptionElement,
+              skipElement,
+              loadingElement) {
     this.clock = clock;
+    this.imageProvider = imageProvider;
     this.bgElement = bgElement;
     this.widgetElement = widgetElement;
     this.titleElement = titleElement;
@@ -48,7 +54,11 @@ class NewTab {
 
   _initBackground() {
     this.imageProvider.getCurrentImage()
-      .then(image => this._setBackground(image));
+      .then((image) => {
+        this._setBackground(image);
+        this.imageProvider.downloadNextImages();
+      })
+      .catch(this._printError);
   }
 
   _registerListener() {
@@ -69,6 +79,10 @@ class NewTab {
     this.imageProvider.skipCurrentImage()
       .then((nextImage) => {
         this._setBackground(nextImage);
+        this._stopLoading();
+      })
+      .catch((error) => {
+        this._printError(error);
         this._stopLoading();
       });
   }
@@ -95,6 +109,17 @@ class NewTab {
       return image.artistName;
     }
     return `${image.artistName}, ${image.completitionYear}`;
+  }
+
+  _printError(error) {
+    const ISSUES_URL = 'https://github.com/fawind/picasso/issues';
+    /* eslint-disable no-console */
+    console.error(
+      'Error while loading background image. ' +
+      'Please check that you are connected to the internet and try again. ' +
+      `If the error persists, please open an issue: ${ISSUES_URL}`);
+    console.error(error);
+    /* eslint-enable no-console */
   }
 }
 

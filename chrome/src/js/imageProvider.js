@@ -22,7 +22,6 @@ export default class ImageProvider {
       currentImage = await this._downloadImage(currentImage);
       this.imageStore.updateCachedImage(0, currentImage);
     }
-    this.downloadNextImages();
     return currentImage;
   }
 
@@ -61,20 +60,22 @@ export default class ImageProvider {
   }
 
   async _convertToDataUri(imageUrl) {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.responseType = 'blob';
+      xhr.onerror = () => {
+        reject(`Error trying to downloading image: ${xhr.status}: ${xhr.statusText}`);
+      };
       xhr.onload = () => {
         if (xhr.status !== 200) {
           reject(`Error while downloading image: ${xhr.status}: ${xhr.statusText}`);
           return;
         }
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
         reader.onerror = () => reject(reader.error);
+        reader.onloadend = () => resolve(reader.result);
         reader.readAsDataURL(xhr.response);
       };
-      xhr.onerror = () => reject(`Error while downloading image: ${xhr.status}: ${xhr.statusText}`);
       xhr.open('GET', imageUrl);
       xhr.send();
     });
@@ -94,16 +95,5 @@ export default class ImageProvider {
 
   _isOnline() {
     return navigator.onLine;
-  }
-
-  _handleError(error) {
-    const ISSUES_URL = 'https://github.com/fawind/picasso/issues';
-    // eslint-disable-next-line no-console
-    console.error(
-      'Error while loading background image. Please check that you are connected with the internet and try again.',
-      `If the error persists, please open a ticket: ${ISSUES_URL}`,
-    );
-    // eslint-disable-next-line no-console
-    console.error(error);
   }
 }
