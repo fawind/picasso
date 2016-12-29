@@ -18,6 +18,8 @@ describe('ImageStore', () => {
     imageStore = container.constitute(ImageStore);
     bucketQueue = imageStore.queue;
 
+    expect.spyOn(imageStore, '_clearStoreOnUpdate');
+
     mockImages = [
       { title: 'TitleA', artistName: 'Picasso', image: 'url' },
       { title: 'TitleB', artistName: 'Picasso', image: 'url' },
@@ -167,6 +169,82 @@ describe('ImageStore', () => {
       }
       bucketQueue._setQueue(queue);
       expect(imageStore.shouldExtendQueue()).toBe(false);
+    });
+  });
+
+  describe('#clearStoreOnUpdate()', () => {
+    let clearStoreSpy;
+    let setVersionSpy;
+    let setIndexSpy;
+
+    beforeEach(() => {
+      expect.spyOn(imageStore, '_clearStoreOnUpdate').andCallThrough();
+      clearStoreSpy = expect.spyOn(imageStore.store, 'clear');
+      setVersionSpy = expect.spyOn(imageStore, 'setVersion');
+      setIndexSpy = expect.spyOn(imageStore, 'setBatchIndex');
+      expect.spyOn(console, 'info');
+    });
+
+    it('should not clear the store if is breaking but same version is stored', () => {
+      const currentVersion = '0.0.3';
+      imageStore._BREAKING_VERSIONS = new Set([currentVersion]);
+      expect.spyOn(imageStore, 'getVersion').andReturn(currentVersion);
+
+      imageStore._clearStoreOnUpdate(currentVersion);
+      expect(clearStoreSpy).toNotHaveBeenCalled();
+      expect(setVersionSpy).toNotHaveBeenCalled();
+      expect(setIndexSpy).toNotHaveBeenCalled();
+    });
+
+    it('should clear the store if is breaking and no version is stored', () => {
+      const currentVersion = '0.0.3';
+      imageStore._BREAKING_VERSIONS = new Set([currentVersion]);
+
+      imageStore._clearStoreOnUpdate(currentVersion);
+      expect(clearStoreSpy).toHaveBeenCalled();
+      expect(setVersionSpy).toHaveBeenCalledWith(currentVersion);
+      expect(setIndexSpy).toHaveBeenCalled();
+    });
+
+    it('should clear the store if is breaking and different version is stored', () => {
+      const currentVersion = '0.0.3';
+      const otherVersion = '0.0.2';
+      imageStore._BREAKING_VERSIONS = new Set([currentVersion]);
+      expect.spyOn(imageStore, 'getVersion').andReturn(otherVersion);
+
+      imageStore._clearStoreOnUpdate(currentVersion);
+      expect(clearStoreSpy).toHaveBeenCalled();
+      expect(setVersionSpy).toHaveBeenCalledWith(currentVersion);
+      expect(setIndexSpy).toHaveBeenCalled();
+    });
+
+    it('should not clear the store if is not breaking', () => {
+      const breakingVersion = '0.0.1';
+      const currentVersion = '0.0.2';
+      const newVersion = '0.0.3';
+      imageStore._BREAKING_VERSIONS = new Set([breakingVersion]);
+      expect.spyOn(imageStore, 'getVersion').andReturn(currentVersion);
+
+      imageStore._clearStoreOnUpdate(newVersion);
+      expect(clearStoreSpy).toNotHaveBeenCalled();
+      expect(setVersionSpy).toNotHaveBeenCalled();
+      expect(setIndexSpy).toNotHaveBeenCalled();
+    });
+
+    it('should recover the index if clearing the store', () => {
+      const newVersion = '0.0.2';
+      const index = 20;
+      const images = ['imageA', 'imageB', 'imageC'];
+      const imagesCount = images.length;
+      imageStore.store.set('index', index);
+      imageStore.store.set('images', images);
+      expect.spyOn(imageStore, 'getImagesCount').andReturn(imagesCount);
+      imageStore._BREAKING_VERSIONS = new Set([newVersion]);
+
+      imageStore._clearStoreOnUpdate(newVersion);
+      expect(clearStoreSpy).toHaveBeenCalled();
+      expect(setVersionSpy).toHaveBeenCalledWith(newVersion);
+      expect(setIndexSpy).toHaveBeenCalledWith(index - imagesCount - 1);
     });
   });
 });

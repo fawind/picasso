@@ -12,9 +12,13 @@ export default class ImageStore {
       INDEX: 'index',
       LAST_UPDATED: 'last_updated',
       DATA_URI_FIELD: 'dataUri',
+      VERSION: 'version',
     };
     this._MIN_QUEUE_SIZE = 4;
     this._IMAGES_TO_DOWNLOAD = 4;
+
+    this._BREAKING_VERSIONS = new Set(['0.1.0']);
+    this._clearStoreOnUpdate(this._getManifestVersion());
   }
 
   getCurrentImage() {
@@ -79,6 +83,40 @@ export default class ImageStore {
 
   setBatchIndex(index) {
     this.store.set(this._keys.INDEX, index);
+  }
+
+  getVersion() {
+    return this.store.get(this._keys.VERSION);
+  }
+
+  setVersion(version) {
+    this.store.set(this._keys.VERSION, version);
+  }
+
+  // TODO(fawind): Remove after users have updated
+  _clearStoreOnUpdate(currentVersion) {
+    const oldVersion = this.getVersion();
+    if (currentVersion !== oldVersion &&
+        this._BREAKING_VERSIONS.has(currentVersion)) {
+      const oldIndex = this.store.get('index') || 0;
+      const oldImages = this.store.get('images') || [];
+      // Retrieve index of current image.
+      const newIndex = Math.max(0, oldIndex - oldImages.length - 1);
+      this.store.clear();
+      this.setBatchIndex(newIndex);
+      this.setVersion(currentVersion);
+      // eslint-disable-next-line no-console
+      console.info(`Updated to version "${currentVersion}", which introduced major changes. ` +
+        `Deleted the local store. New index is set to ${newIndex}.`);
+    }
+  }
+
+  _getManifestVersion() {
+    try {
+      return chrome.runtime.getManifest().version;
+    } catch (error) {
+      return null; // For local development only
+    }
   }
 
   _getDay() {

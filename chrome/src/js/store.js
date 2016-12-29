@@ -29,6 +29,10 @@ export default class Store {
     this.store.removeItem(key);
   }
 
+  clear() {
+    this.store.clear();
+  }
+
   _serialize(value) {
     return JSON.stringify(value);
   }

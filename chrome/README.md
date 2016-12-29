@@ -13,9 +13,13 @@ npm install
 # Run dev server
 npm start
 
+# Run tests and linter
+npm run test
+npm run lint
+
 # Build compiled sources
 npm run build
 
-# Build and create zip
+# Build and create zipped extension
 npm run release
 ```

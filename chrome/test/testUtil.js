@@ -40,4 +40,8 @@ export class MockStore {
   remove(key) {
     delete this.store[key];
   }
+
+  clear() {
+    this.store = {};
+  }
 }

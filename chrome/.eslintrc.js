@@ -7,6 +7,7 @@ module.exports = {
     navigator: true,
     fetch: true,
     document: true,
+    chrome: true,
   },
   ecmaFeatures: {
     await: true,
