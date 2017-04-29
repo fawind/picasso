@@ -23,7 +23,7 @@ class ImageBatch(webapp2.RequestHandler):
         self._artworks = Artworks()
         self._default_batch_size = 10
         self._response_keys = {'artistName', 'title', 'completitionYear',
-                               'image'}
+                               'image', 'details'}
 
     def _get_batch(self, index):
         batch = self._artworks.get_batch(index, self._default_batch_size)

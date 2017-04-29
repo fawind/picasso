@@ -90,7 +90,7 @@ class NewTab {
   _setBackground(image) {
     this.bgElement.style['background-image'] = `url(${image.dataUri})`;
     this.titleElement.textContent = image.title;
-    this.titleElement.setAttribute('href', image.image);
+    this.titleElement.setAttribute('href', image.details || image.image);
     this.descriptionElement.textContent = this._getDescription(image);
   }
 
