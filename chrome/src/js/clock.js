@@ -1,12 +1,13 @@
-import { ClockElement } from './domElements';
+import { HoursElement, MinutesElement } from './domElements';
 
 export default class Clock {
 
-  static constitute() { return [ClockElement]; }
+  static constitute() { return [HoursElement, MinutesElement]; }
 
-  constructor(clockElement) {
-    this.clockElement = clockElement;
-    this.refreshInterval = 60000;
+  constructor(hoursElement, minutesElement, refreshInterval = 60000) {
+    this.hoursElement = hoursElement;
+    this.minutesElement = minutesElement;
+    this.refreshInterval = refreshInterval;
   }
 
   run() {
@@ -15,18 +16,12 @@ export default class Clock {
   }
 
   _updateClock() {
-    this.clockElement.textContent = this._getTime();
+    const date = new Date();
+    this.hoursElement.textContent = this._formatTime(date.getHours());
+    this.minutesElement.textContent = this._formatTime(date.getMinutes());
   }
 
   _formatTime(time) {
     return time < 10 ? `0${time}` : time;
-  }
-
-  _getTime() {
-    const date = new Date();
-    return [
-      this._formatTime(date.getHours()),
-      this._formatTime(date.getMinutes()),
-    ].join(':');
   }
 }
