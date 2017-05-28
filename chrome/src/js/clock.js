@@ -1,12 +1,15 @@
-import { HoursElement, MinutesElement } from './domElements';
+import { HoursElement, MinutesElement, SeparatorElement } from './domElements';
 
 export default class Clock {
 
-  static constitute() { return [HoursElement, MinutesElement]; }
+  static constitute() {
+    return [HoursElement, MinutesElement, SeparatorElement];
+  }
 
-  constructor(hoursElement, minutesElement, refreshInterval = 60000) {
+  constructor(hoursElement, minutesElement, separatorElement, refreshInterval = 60000) {
     this.hoursElement = hoursElement;
     this.minutesElement = minutesElement;
+    this.separatorElement = separatorElement;
     this.refreshInterval = refreshInterval;
   }
 
@@ -19,6 +22,7 @@ export default class Clock {
     const date = new Date();
     this.hoursElement.textContent = this._formatTime(date.getHours());
     this.minutesElement.textContent = this._formatTime(date.getMinutes());
+    this.separatorElement.textContent = ':';
   }
 
   _formatTime(time) {

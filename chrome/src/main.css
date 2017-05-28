@@ -9,7 +9,6 @@ html, body, .bg {
   padding: 0;
   font-family: Lato, Helvetica Neue, Helvetica, Arial, sans-serif;
   color: white;
-  text-shadow: 0 0 200px #000;
 }
 
 .bg {
@@ -26,23 +25,28 @@ html, body, .bg {
   transform: translateX(-50%) translateY(-50%);
   font-size: 7vw;
   font-weight: 700;
+  text-shadow: 0 0 200px #000;
   cursor: default;
   user-select: none;
 }
 
-.clock .separator {
+.clock #separator {
   display: inline-block;
   transform: translateY(-0.7vw);
 }
 
-#info {
+.widget {
+  text-shadow: 0 0 20px #000;
+}
+
+.widget #info {
   position: fixed;
   bottom: 0;
   left: 0;
   padding: 1em;
 }
 
-#actions {
+.widget #actions {
   position: fixed;
   bottom: 0;
   right: 0;

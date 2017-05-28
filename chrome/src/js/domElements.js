@@ -7,4 +7,5 @@ export const DescriptionElement = new Value(document.querySelector('#description
 export const SkipElement = new Value(document.querySelector('#skip'));
 export const HoursElement = new Value(document.querySelector('#hours'));
 export const MinutesElement = new Value(document.querySelector('#minutes'));
+export const SeparatorElement = new Value(document.querySelector('#separator'));
 export const LoadingElement = new Value(document.querySelector('.loading'));

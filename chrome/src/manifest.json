@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Picasso - New Tab Page",
   "description": "Art masterpieces in your browser tabs.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "incognito": "split",
   "permissions": [
     "http://picasso-tab.appspot.com/*",
