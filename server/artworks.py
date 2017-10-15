@@ -3,10 +3,10 @@ import csv
 
 class Artworks:
 
-    def __init__(self):
-        self._artworks = self._load_artworks()
+    def __init__(self, file_path='data/images.csv'):
+        self._artworks = self._load_artworks(file_path)
 
-    def _load_artworks(self, file_path='data/images.csv'):
+    def _load_artworks(self, file_path):
         with open(file_path, 'r') as csv_file:
             reader = csv.DictReader(csv_file)
             return [r for r in reader]

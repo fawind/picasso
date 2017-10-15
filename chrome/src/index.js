@@ -90,7 +90,7 @@ class NewTab {
   _setBackground(image) {
     this.bgElement.style['background-image'] = `url(${image.dataUri})`;
     this.titleElement.textContent = image.title;
-    this.titleElement.setAttribute('href', image.details || image.image);
+    this.titleElement.setAttribute('href', image.detailsUrl || image.imageUrl);
     this.descriptionElement.textContent = this._getDescription(image);
   }
 
@@ -105,10 +105,10 @@ class NewTab {
   }
 
   _getDescription(image) {
-    if (!image.completitionYear || image.completitionYear === '-1') {
+    if (!image.completionYear || image.completionYear === '-1') {
       return image.artistName;
     }
-    return `${image.artistName}, ${image.completitionYear}`;
+    return `${image.artistName}, ${image.completionYear}`;
   }
 
   _printError(error) {

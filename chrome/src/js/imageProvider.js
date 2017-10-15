@@ -7,7 +7,7 @@ export default class ImageProvider {
 
   constructor(imageStore) {
     this.imageStore = imageStore;
-    this._API_ENPOINT = 'http://picasso-tab.appspot.com/api/v1/image/batch/';
+    this._API_ENPOINT = 'http://picasso-tab.appspot.com/api/v2/image/batch/';
   }
 
   async skipCurrentImage() {
@@ -47,13 +47,13 @@ export default class ImageProvider {
   }
 
   async _downloadImage(image, retry = false) {
-    const dataUri = await this._convertToDataUri(image.image);
+    const dataUri = await this._convertToDataUri(image.imageUrl);
     const annotatedImage = Object.assign({}, image, { dataUri });
     if (!this.imageStore.canUpdateCachedImage(annotatedImage)) {
       if (retry) {
         throw new Error('Cannot set image');
       }
-      annotatedImage.image += '!Large.jpg';
+      annotatedImage.imageUrl += '!Large.jpg';
       return this._downloadImage(annotatedImage, true);
     }
     return annotatedImage;

@@ -17,7 +17,7 @@ export default class ImageStore {
     this._MIN_QUEUE_SIZE = 4;
     this._IMAGES_TO_DOWNLOAD = 4;
 
-    this._BREAKING_VERSIONS = new Set(['0.1.0']);
+    this._BREAKING_VERSIONS = new Set(['0.1.0', '0.2.0']);
     this._clearStoreOnUpdate(this._getManifestVersion());
   }
 
@@ -93,15 +93,17 @@ export default class ImageStore {
     this.store.set(this._keys.VERSION, version);
   }
 
-  // TODO(fawind): Remove after users have updated
   _clearStoreOnUpdate(currentVersion) {
     const oldVersion = this.getVersion();
     if (currentVersion !== oldVersion &&
         this._BREAKING_VERSIONS.has(currentVersion)) {
+      const newIndex = 0; // TODO - HACK: Reset index since images have a new order
+      /*
       const oldIndex = this.store.get('index') || 0;
       const oldImages = this.store.get('images') || [];
       // Retrieve index of current image.
       const newIndex = Math.max(0, oldIndex - oldImages.length - 1);
+      */
       this.store.clear();
       this.setBatchIndex(newIndex);
       this.setVersion(currentVersion);
