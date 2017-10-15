@@ -11,14 +11,23 @@ Download and install the [Google App Engine Python SDK](https://cloud.google.com
 ${SDK_PATH}/dev_appserver.py .
 
 # Deploy server
-${SDK_PATH}/appcfg.py update .
+gcloud app deploy
 ```
 
 ## API
 
-**GET:** `/api/v1/image/batch/<batch-id>`
+**GET:** `/api/v2/image/batch/<batch-id>`
 
-Returns a batch of images.
+Returns a batch of images:
+
+```
+Image:
+  - title <str>
+  - artistName <str>
+  - completionYear <int>
+  - detailsUrl <str>
+  - imageUrl <str>
+```
 
 
 

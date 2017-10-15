@@ -15,13 +15,16 @@ Install the current version from the [Chrome Web Store](https://chrome.google.co
 
 The project is split in three parts:
 
-1. [**ImageSelection:**](https://github.com/fawind/picasso/blob/master/imageSelection/imageSelection.ipynb)
-  * Fetches images from Wikidata and filters the results based on aspect ratio and size.
-  * Results are saved in a CSV file and used by the server.
-2. [**Server:**](https://github.com/fawind/picasso/tree/master/server)
-  * Given an offset, the server returns the next batch of images.
-  * An image contains the image url and its metadata.
-3. [**Chrome extension:**](https://github.com/fawind/picasso/tree/master/chrome)
+
+1. [**Chrome extension:**](https://github.com/fawind/picasso/tree/master/chrome)
   * Fetches a batch of image urls from the server and stores them in a queue using the local storage.
   * The next N images are cached by converting them to data URIs.
   * If the queue gets too small, new image urls are fetched.
+2. [**Server:**](https://github.com/fawind/picasso/tree/master/server)
+  * Given an offset, the server returns the next batch of images.
+  * An image contains the image url and its metadata.
+3. [**ImageSelection:**](https://github.com/fawind/picasso/blob/master/imageSelection/imageSelection.ipynb)
+  * Fetches images from Wikidata and filters the results based on aspect ratio and size.
+  * Results are saved in a CSV file and used by the server.
+
+
