@@ -7,7 +7,7 @@ export default class ImageProvider {
 
   constructor(imageStore) {
     this.imageStore = imageStore;
-    this._API_ENPOINT = 'http://picasso-tab.appspot.com/api/v2/image/batch/';
+    this._API_ENPOINT = 'https://picasso-tab.appspot.com/api/v2/image/batch/';
   }
 
   async skipCurrentImage() {
