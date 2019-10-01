@@ -7,7 +7,7 @@ The images are provided by [Wikiart](https://www.wikiart.org/).
   <img src="https://cloud.githubusercontent.com/assets/7422050/20642802/6bb8d3fc-b419-11e6-8350-31431ef3181c.png" width="600" alt="Picasso Preview"/>
 </p>
 
-## Installation
+## Installation ![Chrome Web Store](https://img.shields.io/chrome-web-store/users/dlckklnbefkepkjemodnlbjokaimbedb)
 
 Install the current version from the [Chrome Web Store](https://chrome.google.com/webstore/detail/picasso-new-tab-page/dlckklnbefkepkjemodnlbjokaimbedb).
 
